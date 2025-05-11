@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enviar Voto</title>
+  <!-- Usar la versión de compatibilidad de Firebase (v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+  <h1>Votación Firebase</h1>
+  <button id="vote-republic">Votar por la República</button>
+  <button id="vote-empire">Votar por el Imperio</button>
+  <p id="status">Estado: Esperando acción...</p>
+
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjxhOx86viucIZlGpu7Zp7d3sipVdftiQ",
+      authDomain: "digitalvoteesp32.firebaseapp.com",
+      databaseURL: "https://digitalvoteesp32-default-rtdb.firebaseio.com",
+      projectId: "digitalvoteesp32",
+      storageBucket: "digitalvoteesp32.appspot.com",
+      messagingSenderId: "203683634767",
+      appId: "1:203683634767:web:8ff4d10e7665cd5f8c943a",
+      measurementId: "G-T0HZPT8RR0"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Función para actualizar votos
+    function updateVote(faction) {
+      const path = `votes/galacticVotes/${faction}`;
+      const ref = database.ref(path);
+
+      // Leer votos actuales y actualizarlos
+      ref.once('value')
+        .then((snapshot) => {
+          const currentVotes = snapshot.val() || 0;
+          return ref.set(currentVotes + 1);
+        })
+        .then(() => {
+          document.getElementById('status').innerText = `Voto registrado para ${faction}!`;
+        })
+        .catch((error) => {
+          document.getElementById('status').innerText = `Error: ${error.message}`;
+        });
+    }
+
+    // Eventos de los botones
+    document.getElementById('vote-republic').addEventListener('click', () => updateVote('republic'));
+    document.getElementById('vote-empire').addEventListener('click', () => updateVote('empire'));
+  </script>
+</body>
+</html>

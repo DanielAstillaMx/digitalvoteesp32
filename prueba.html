@@ -1,21 +1,101 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enviar Voto</title>
-  <!-- Usar la versión de compatibilidad de Firebase (v8) -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Votación Galáctica</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0d1117;
+      color: #c9d1d9;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background-color: #161b22;
+      border-bottom: 2px solid #30363d;
+    }
+
+    h1 {
+      font-family: "Oswald", sans-serif;
+      font-weight: 600;
+      font-size: 2rem;
+      color: #ffee58;
+      margin: 0;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .btn {
+      background-color: #238636;
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      margin: 10px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #2ea043;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #58a6ff;
+    }
+
+    #chart-container {
+      max-width: 600px;
+      width: 90%;
+      margin-top: 40px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #161b22;
+      color: #8b949e;
+      font-size: 0.9rem;
+      border-top: 2px solid #30363d;
+    }
+  </style>
 </head>
 <body>
-  <h1>Votación Firebase</h1>
-  <button id="vote-republic">Votar por la República</button>
-  <button id="vote-empire">Votar por el Imperio</button>
-  <p id="status">Estado: Esperando acción...</p>
+  <header>
+    <h1>Votación Galáctica</h1>
+  </header>
+
+  <main>
+    <button class="btn" id="vote-republic">Votar por la República</button>
+    <button class="btn" id="vote-empire">Votar por el Imperio</button>
+    <p id="status">Estado: Esperando acción...</p>
+    <div id="chart-container">
+      <canvas id="votesChart"></canvas>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 Consejo Galáctico de Votación
+  </footer>
 
   <script>
-    // Configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAjxhOx86viucIZlGpu7Zp7d3sipVdftiQ",
       authDomain: "digitalvoteesp32.firebaseapp.com",
@@ -27,32 +107,73 @@
       measurementId: "G-T0HZPT8RR0"
     };
 
-    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Función para actualizar votos
     function updateVote(faction) {
       const path = `votes/galacticVotes/${faction}`;
       const ref = database.ref(path);
-
-      // Leer votos actuales y actualizarlos
       ref.once('value')
         .then((snapshot) => {
           const currentVotes = snapshot.val() || 0;
           return ref.set(currentVotes + 1);
         })
         .then(() => {
-          document.getElementById('status').innerText = `Voto registrado para ${faction}!`;
+          document.getElementById('status').innerText = `¡Voto registrado para ${faction === 'republic' ? 'la República' : 'el Imperio'}!`;
         })
         .catch((error) => {
           document.getElementById('status').innerText = `Error: ${error.message}`;
         });
     }
 
-    // Eventos de los botones
     document.getElementById('vote-republic').addEventListener('click', () => updateVote('republic'));
     document.getElementById('vote-empire').addEventListener('click', () => updateVote('empire'));
+
+    const ctx = document.getElementById('votesChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['República', 'Imperio'],
+        datasets: [{
+          label: 'Votos',
+          data: [0, 0],
+          backgroundColor: ['#3fb950', '#f85149']
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: '#c9d1d9'
+            }
+          },
+          x: {
+            ticks: {
+              color: '#c9d1d9'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#c9d1d9'
+            }
+          }
+        }
+      }
+    });
+
+    const votesRef = database.ref('votes/galacticVotes');
+    votesRef.on('value', (snapshot) => {
+      const votes = snapshot.val() || {};
+      chart.data.datasets[0].data = [
+        votes.republic || 0,
+        votes.empire || 0
+      ];
+      chart.update();
+    });
   </script>
 </body>
 </html>

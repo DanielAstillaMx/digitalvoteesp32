@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Votación Galáctica - Administración</title>
+  <link rel="stylesheet" href="styles.css" />
+
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js" defer></script>
+
+  <!-- Lógica de administración -->
+  <script src="registro.js" defer></script>
+</head>
+
+<body>
+  <div class="container" style="max-width: 800px;">
+    <h1>👥 Administración de Usuarios</h1>
+
+    <!-- Panel de inicio de sesión -->
+    <div id="admin-login-div" style="display: none;">
+      <h2>Acceso de Administrador</h2>
+      <div class="form-group">
+        <label for="admin-email">Correo de Administrador:</label>
+        <input type="email" id="admin-email" placeholder="admin@ejemplo.com" required />
+      </div>
+      <div class="form-group">
+        <label for="admin-password">Contraseña:</label>
+        <input type="password" id="admin-password" placeholder="Contraseña de admin" required />
+      </div>
+      <button class="btn" id="admin-login-btn">
+        <span id="admin-loading" class="loading" style="display: none;"></span>
+        Iniciar Sesión como Admin
+      </button>
+      <div>
+        <a href="index.html" class="btn" style="background: #718096;">← Volver al Inicio</a>
+      </div>
+    </div>
+
+    <!-- Panel de administración -->
+    <div id="admin-panel" style="display: none;">
+      <div class="user-info">
+        <strong>Administrador:</strong> <span id="admin-user-email"></span>
+        <button class="btn btn-danger" onclick="adminLogout()" style="float: right;">Cerrar Sesión</button>
+      </div>
+
+      <h2>Registrar Nuevo Usuario</h2>
+      <div class="form-group">
+        <label for="new-email">Correo electrónico:</label>
+        <input type="email" id="new-email" placeholder="usuario@ejemplo.com" required />
+      </div>
+      <div class="form-group">
+        <label for="new-password">Contraseña temporal:</label>
+        <input type="password" id="new-password" placeholder="Mínimo 6 caracteres" required />
+      </div>
+      <button class="btn btn-success" id="register-btn">
+        <span id="register-loading" class="loading" style="display: none;"></span>
+        Registrar Usuario
+      </button>
+
+      <div class="users-list">
+        <h2>Usuarios Registrados</h2>
+        <button class="btn" id="load-users-btn">
+          <span id="load-loading" class="loading" style="display: none;"></span>
+          Cargar Usuarios
+        </button>
+        <div id="users-container"></div>
+      </div>
+
+      <div>
+        <a href="index.html" class="btn" style="background: #718096;">Ver Resultados</a>
+        <a href="votos.html" class="btn">Ir a Votar</a>
+      </div>
+    </div>
+
+    <div id="message" class="message" style="display: none;"></div>
+  </div>
+</body>
+
+</html>
